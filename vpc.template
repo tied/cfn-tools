@@ -22,13 +22,10 @@
   },
   "Mappings" : {
    	"SubnetConfig" : {
-     		"VPC"             : { "CIDR" : "10.100.0.0/16" },
-     		"PublicSubnet1"   : { "CIDR" : "10.100.0.0/24" },
-     		"PublicSubnet2"   : { "CIDR" : "10.100.1.0/24" },
-     		"JiraSubnet1"     : { "CIDR" : "10.100.10.0/28" },
-     		"JiraSubnet2"     : { "CIDR" : "10.100.11.0/28" },
-     		"DatabaseSubnet1" : { "CIDR" : "10.100.100.0/24" },
-     		"DatabaseSubnet2" : { "CIDR" : "10.100.101.0/24" }
+     		"VPC"            : { "CIDR" : "10.100.0.0/16" },
+     		"PublicSubnet"   : { "CIDR" : "10.100.0.0/24" },
+     		"JiraSubnet"     : { "CIDR" : "10.100.10.0/28" },
+     		"DatabaseSubnet" : { "CIDR" : "10.100.100.0/24" }
    	}
   },
   "Resources" : {

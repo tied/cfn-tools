@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "TOOLS vpc. CIDR Block for the VPC of the form 10.100.0.0/16.",
+  "Description" : "TOOLS vpc consisting of workflow and wiki tools distributed across two availability zones.",
   "Parameters" : {
     "KeyName" : {
         "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -22,10 +22,15 @@
   },
   "Mappings" : {
    	"SubnetConfig" : {
-     		"VPC"            : { "CIDR" : "10.100.0.0/16" },
-     		"PublicSubnet"   : { "CIDR" : "10.100.0.0/24" },
-     		"JiraSubnet"     : { "CIDR" : "10.100.10.0/28" },
-     		"DatabaseSubnet" : { "CIDR" : "10.100.100.0/24" }
+     		"VPC"        : { "CIDR" : "10.100.0.0/16" },
+        "PrivateAZ1" : { "CIDR" : "10.100.0.0/19" },
+        "PublicAZ1"  : { "CIDR" : "10.100.32.0/20" },
+        "SpareAZ1"   : { "CIDR" : "10.100.48.0/20" },
+        "PrivateAZ2" : { "CIDR" : "10.100.64.0/19" },
+        "PublicAZ2"  : { "CIDR" : "10.100.96.0/20" },
+        "SpareAZ2"   : { "CIDR" : "10.100.112.0/20" },
+        "AZ3"        : { "CIDR" : "10.100.128.0/18" },
+        "Spare"      : { "CIDR" : "10.100.196.0/18" }
    	}
   },
   "Resources" : {
@@ -58,6 +63,10 @@
      	}
     }
   },
-  "Outputs" : {
+  "Outputs": {
+    "VPC" : {
+      "Description" : "VPC Info",
+      "Value" : {"Fn::Join" : [ "", [ "10.100.0.0"] ] }
+    }
   }
 }

@@ -1,8 +1,7 @@
 aws cloudformation create-stack \
     --template-body file://bootstrap.template \
-    --stack-name tools-stack-prod \
+    --stack-name tools-stack \
     --capabilities CAPABILITY_IAM \
     --parameters \
-        ParameterKey=BastionKeyName,ParameterValue=tools-access \
-        ParameterKey=SSHFrom,ParameterValue=10.0.10.0/32 \
-        ParameterKey=VPCName,ParameterValue=Tools
+        ParameterKey=KeyName,ParameterValue=tools-access \
+        ParameterKey=SSHFrom,ParameterValue=0.0.0.0/0

@@ -4,7 +4,6 @@
     "Parameters": {
         "VpcId": {
             "Description": "Id of given VPC",
-            "Default": "vpc-4f3ef62a",
             "Type": "String"
         },
         "PublicSubnetCidr": {

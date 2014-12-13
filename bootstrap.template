@@ -61,12 +61,47 @@
      		"VpcId" : { "Ref" : "VPC" },
      		"InternetGatewayId" : { "Ref" : "InternetGateway" }
      	}
+    },
+    "Subnet1": {
+      "Type" : "AWS::CloudFormation::Stack",
+      "Properties" : {
+        "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cfn-templates-tools/subnets.template",
+        "Parameters" : {
+          "VpcId" : { "Ref" : "VPC" },
+          "AvailabilityZone" : "eu-west-1a",
+          "PublicSubnetCidr": { "Fn::FindInMap" : [ "SubnetConfig", "PublicAZ1", "CIDR" ]},
+          "PrivateSubnetCidr" : { "Fn::FindInMap" : [ "SubnetConfig", "PrivateAZ1", "CIDR" ]}
+        }
+      }
+    },
+    "Subnet2": {
+      "Type" : "AWS::CloudFormation::Stack",
+      "Properties" : {
+        "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cfn-templates-tools/subnets.template",
+        "Parameters" : {
+          "VpcId" : { "Ref" : "VPC" },
+          "AvailabilityZone" : "eu-west-1b",
+          "PublicSubnetCidr": { "Fn::FindInMap" : [ "SubnetConfig", "PublicAZ2", "CIDR" ]},
+          "PrivateSubnetCidr" : { "Fn::FindInMap" : [ "SubnetConfig", "PrivateAZ2", "CIDR" ]}
+        }
+      }
+    },
+    "PublicAcl": {
+      "Type" : "AWS::CloudFormation::Stack",
+      "Properties" : {
+        "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cfn-templates-tools/public-acl.template",
+        "Parameters" : {
+          "VpcId" : { "Ref" : "VPC" },
+          "PublicSubnet": {"Fn::Join" : [ "", [ "10.", { "Ref" : "VPCNumber" } ,".32.0/22"] ] },
+          "PrivateSubnetCidr" : { "Fn::FindInMap" : [ "SubnetConfig", "PublicAZ1", "CIDR" ]}
+        }
+      }
     }
   },
   "Outputs": {
     "VPC" : {
       "Description" : "VPC Info",
-      "Value" : {"Fn::Join" : [ "", [ "10.100.0.0"] ] }
+      "Value" : "10.100.0.0"
     }
   }
 }

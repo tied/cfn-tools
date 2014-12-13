@@ -1,0 +1,83 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Security Group Templates used within the Tools VPC.",
+  "Parameters" : {
+    "VPC" : {
+      "Description" : "The identifier for a pre-defined vpc",
+      "Type" : "String",
+      "Default" : "vpc-c006efa5"
+    },
+    "SSHLocation" : {
+        "Description" : "Lockdown SSH access to the NAT server (default can be accessed from anywhere)",
+        "Type" : "String",
+        "MinLength" : "9",
+        "MaxLength" : "18",
+        "Default" : "0.0.0.0/0",
+        "AllowedPattern" : "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+        "ConstraintDescription" : "must be a valid CIDR range of the form x.x.x.x/x."
+    }
+  },
+  "Mappings" : {
+   	"SubnetConfig" : {
+      "VPC"            : { "CIDR" : "10.100.0.0/16" },
+      "PublicSubnet"   : { "CIDR" : "10.100.0.0/24" },
+      "JiraSubnet"     : { "CIDR" : "10.100.10.0/28" },
+      "DatabaseSubnet" : { "CIDR" : "10.100.100.0/24" }
+   	}
+  },
+  "Resources" : {
+   	"NATSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable internal access to the NAT device",
+        "VpcId" : { "Ref" : "VPC" },
+        "SecurityGroupIngress" : [
+           { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : "0.0.0.0/0"} ,
+           { "IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0"} ,
+           { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Ref" : "SSHLocation" }} ],
+        "SecurityGroupEgress" : [
+           { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : "0.0.0.0/0"} ,
+           { "IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0"} ]
+      }
+    },
+    "ELBSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",  
+      "Properties" : {
+        "GroupDescription" : "Allow access to the ELB",
+        "VpcId" : { "Ref" : "VPC" },
+        "SecurityGroupIngress" : [ 
+          { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
+          { "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : "0.0.0.0/0"}
+        ],
+        "SecurityGroupEgress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Fn::FindInMap" : [ "SubnetConfig", "JiraSubnet", "CIDR" ]} }
+        ]
+      }
+    },
+    "JiraSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Allow access to the Jira Enterprise instance",
+        "VpcId" : { "Ref" : "VPC" },
+        "SecurityGroupIngress" : [
+          { "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "SourceSecurityGroupId" : { "Ref" : "ELBSecurityGroup" }}
+        ],
+        "SecurityGroupEgress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535", "CidrIp" : "0.0.0.0/0" }
+        ]
+      }
+    },
+    "RDSSecurityGroup" : {
+      "Type" : "AWS::RDS::DBSecurityGroup",
+      "Properties" : {
+        "EC2VpcId" : { "Ref" : "VPC" },
+        "GroupDescription" : "Allow JiraSecurityGroup access to RDS DB",
+        "DBSecurityGroupIngress" : [{
+          "EC2SecurityGroupId" : { "Ref" : "JiraSecurityGroup" }
+        }]
+      }
+    }
+  },
+  "Outputs" : {
+  }
+}
